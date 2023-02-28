@@ -1,2 +1,4 @@
 **/node_modules
+**/postgres
 **/dist
+**/.env
