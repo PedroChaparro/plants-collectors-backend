@@ -1,0 +1,33 @@
+-- Create system tables
+
+CREATE TABLE IF NOT EXISTS USERS (
+  id SERIAL PRIMARY KEY,
+  username TEXT NOT NULL UNIQUE,
+  email TEXT NOT NULL UNIQUE,
+  password TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS PLANT (
+  id SERIAL PRIMARY KEY, 
+  seller_id INT,
+  name TEXT NOT NULL,
+  CONSTRAINT fk_plant_user
+    FOREIGN KEY(seller_id) 
+      REFERENCES USERS(id)
+);
+
+CREATE TABLE IF NOT EXISTS RATING (
+  id SERIAL PRIMARY KEY,
+  user_id INT,
+  plant_id INT,
+  rating INTEGER NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT rating_check CHECK (rating >= 0 AND rating <= 5),
+  CONSTRAINT fk_rating_user
+    FOREIGN KEY(user_id) 
+      REFERENCES USERS(id),
+  CONSTRAINT fk_rating_plant
+    FOREIGN KEY(plant_id) 
+      REFERENCES PLANT(id)
+);
