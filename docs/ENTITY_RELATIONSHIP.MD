@@ -19,6 +19,11 @@ PLANT {
   TEXT name "[not null]"
 }
 
+USER_HAS_FAVORITES{
+  INTEGER user_id "[pk, ref USER.id]"
+  INTEGER plant_id "[pk, ref PLANT.id]"
+}
+
 RATING {
   INTEGER id "[pk, auto_increment]"
   INTEGER plant_id "[fk, ref PLANT.id]"
@@ -28,6 +33,8 @@ RATING {
 }
 
 USER ||--o{ PLANT: publish
+USER ||--o{ USER_HAS_FAVORITES: has
+PLANT ||--o{ USER_HAS_FAVORITES: marked_as_favorite
 USER ||--o{ RATING: rates
 PLANT ||--o{ RATING: has
 ```
@@ -39,4 +46,7 @@ PLANT ||--o{ RATING: has
 - `PLANT` can have ZERO or UNLIMITED `RATING`s
 - Each `RAGING` is created by ONE `USER`
 - Each `RATING` belongs to ONE `PLANT`
-- Each ``PLANT` is published by ONE `USER`
+- Each `PLANT` is published by ONE `USER`
+- Each `USER` can have ZERO or UNLIMITED `USER_HAS_FAVORITES` relations
+- Each `USER_HAS_FAVORITES` relation is between ONE `USER` and ONE `PLANT`
+- Each `PLANT` can have ZERO or UNLIMITED `USER_HAS_FAVORITES` relations
