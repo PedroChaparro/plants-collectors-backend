@@ -17,6 +17,7 @@ specifiers:
   pg: ^8.9.0
   sharp: ^0.31.3
   typescript: ^4.9.5
+  zod: ^3.20.6
 
 dependencies:
   '@faker-js/faker': 7.6.0
@@ -27,6 +28,7 @@ dependencies:
   jsonwebtoken: 9.0.0
   pg: 8.9.0
   sharp: 0.31.3
+  zod: 3.20.6
 
 devDependencies:
   '@types/bcrypt': 5.0.0
@@ -1566,3 +1568,7 @@ packages:
       y18n: 5.0.8
       yargs-parser: 21.1.1
     dev: true
+
+  /zod/3.20.6:
+    resolution: {integrity: sha512-oyu0m54SGCtzh6EClBVqDDlAYRz4jrVtKwQ7ZnsEmMI9HnzuZFj8QFwAY1M5uniIYACdGvv0PBWPF2kO0aNofA==}
+    dev: false
