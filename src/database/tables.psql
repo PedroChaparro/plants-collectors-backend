@@ -13,30 +13,30 @@ CREATE TABLE IF NOT EXISTS USERS (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS PLANT (
+CREATE TABLE IF NOT EXISTS PLANTS (
   id SERIAL PRIMARY KEY, 
-  seller_id INT,
+  seller_id INT NOT NULL,
   name TEXT NOT NULL,
-  CONSTRAINT fk_plant_user
+  CONSTRAINT fk_plants_user
     FOREIGN KEY(seller_id) 
       REFERENCES USERS(id)
 );
 
 CREATE TABLE IF NOT EXISTS USER_HAS_FAVORITES(
-  user_id INT,
-  plant_id INT,
+  user_id INT NOT NULL,
+  plant_id INT NOT NULL,
   CONSTRAINT fk_user_has_favorites_user
     FOREIGN KEY(user_id) 
       REFERENCES USERS(id),
   CONSTRAINT fk_user_has_favorites_plant
     FOREIGN KEY(plant_id) 
-      REFERENCES PLANT(id)
+      REFERENCES PLANTS(id)
 );
 
 CREATE TABLE IF NOT EXISTS RATING (
   id SERIAL PRIMARY KEY,
-  user_id INT,
-  plant_id INT,
+  user_id INT NOT NULL,
+  plant_id INT NOT NULL,
   rating INTEGER NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT rating_check CHECK (rating >= 0 AND rating <= 5),
@@ -45,5 +45,5 @@ CREATE TABLE IF NOT EXISTS RATING (
       REFERENCES USERS(id),
   CONSTRAINT fk_rating_plant
     FOREIGN KEY(plant_id) 
-      REFERENCES PLANT(id)
+      REFERENCES PLANTS(id)
 );
