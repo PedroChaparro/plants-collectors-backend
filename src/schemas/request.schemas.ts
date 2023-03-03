@@ -10,7 +10,3 @@ export const loginRequestSchema = z.object({
   username: z.string().min(4).max(16),
   password: z.string(), // Password is just correct or not
 });
-
-export const favoriteRequestSchema = z.object({
-  plant_id: z.number().positive(),
-});

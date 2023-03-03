@@ -9,10 +9,7 @@ import {
   SaveUser,
 } from "../models/models.user.js";
 import { IRequestWithUser, KnownErrors } from "../schemas/interfaces.js";
-import {
-  favoriteRequestSchema,
-  signupRequestSchema,
-} from "../schemas/request.schemas.js";
+import { signupRequestSchema } from "../schemas/request.schemas.js";
 
 // Handle the POST request to /api/v1/user/signup (Create a new user)
 export const HandleSignupPost = async (
@@ -98,11 +95,18 @@ export const HandleFavoritesPost = async (
     if (!req.user || !req.user.id || !req.user.username)
       throw new Error(KnownErrors.REQ_NO_USER);
 
-    // Validate the request body with zod
-    favoriteRequestSchema.parse(req.body);
+    // Validate the url parameter
+    let { plant_id } = req.params;
+
+    if (!plant_id) {
+      return res.status(400).json({
+        error: true,
+        message: "Plant id is required as a url parameter",
+      });
+    }
 
     // Check the plant exists
-    const plant = await GetProductById(req.body.plant_id);
+    const plant = await GetProductById(Number(plant_id));
 
     if (!plant) {
       return res.status(404).json({
@@ -114,7 +118,7 @@ export const HandleFavoritesPost = async (
     // Check the plant is not already in the user's favorites
     const userFavorites = await GetFavorites(req.user.id);
 
-    if (userFavorites.includes(req.body.plant_id)) {
+    if (userFavorites.includes(Number(plant_id))) {
       return res.status(409).json({
         error: true,
         message: "Plant is already in favorites",
@@ -122,7 +126,7 @@ export const HandleFavoritesPost = async (
     }
 
     // Add the plant to the user's favorites
-    await AddFavorite(req.body.plant_id, req.user.id);
+    await AddFavorite(Number(plant_id), req.user.id);
 
     res.json({
       error: false,
