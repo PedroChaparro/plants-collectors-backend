@@ -1,4 +1,3 @@
-import { QueryResult } from "pg";
 import { DatabasePool } from "../database/database.js";
 import { TUser } from "../schemas/interfaces.js";
 
