@@ -1,3 +1,5 @@
+import { Request } from "express";
+
 export type TUser = {
   username: string;
   email: string;
@@ -16,4 +18,13 @@ export type TPopulatedPlant = {
 export enum JWTValidationErrors {
   EXPIRED = "The token has expired",
   INVALID = "The token is invalid",
+}
+
+type TRequestUser = {
+  id: number;
+  username: string;
+};
+
+export interface IRequestWithUser extends Request {
+  user?: TRequestUser;
 }

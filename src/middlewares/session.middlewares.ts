@@ -1,10 +1,13 @@
 import { NextFunction, Request, Response } from "express";
 import { verifyAccessToken, verifyRefreshToken } from "../lib/jwt.lib.js";
-import { JWTValidationErrors } from "../schemas/interfaces.js";
+import {
+  IRequestWithUser,
+  JWTValidationErrors,
+} from "../schemas/interfaces.js";
 
 // Middleware to check if the access token is provided and is valid / not expired
 export const mustProvideAccessToken = (
-  req: Request,
+  req: IRequestWithUser,
   res: Response,
   next: NextFunction
 ) => {
@@ -19,7 +22,7 @@ export const mustProvideAccessToken = (
   }
 
   // Check the token is valid
-  const [error, _] = verifyAccessToken(token);
+  const [error, claims] = verifyAccessToken(token);
 
   if (error && error.message == JWTValidationErrors.EXPIRED) {
     return res.status(403).json({
@@ -28,12 +31,23 @@ export const mustProvideAccessToken = (
     });
   }
 
-  if (error && error.message === JWTValidationErrors.INVALID) {
+  if (
+    (error && error.message === JWTValidationErrors.INVALID) ||
+    !claims ||
+    !claims.id ||
+    !claims.username
+  ) {
     return res.status(401).json({
       error: true,
       message: "Access token is invalid",
     });
   }
+
+  // Add the user id to the request object
+  req.user = {
+    id: claims.id,
+    username: claims.username,
+  };
 
   // Continue
   next();
@@ -41,7 +55,7 @@ export const mustProvideAccessToken = (
 
 // Middleware to check if the refresh token is provided and is valid / not expired
 export const mustProvideRefreshToken = (
-  req: Request,
+  req: IRequestWithUser,
   res: Response,
   next: NextFunction
 ) => {
@@ -55,7 +69,7 @@ export const mustProvideRefreshToken = (
   }
 
   // Check the token is valid
-  const [error, _] = verifyRefreshToken(token);
+  const [error, claims] = verifyRefreshToken(token);
 
   if (error && error.message == JWTValidationErrors.EXPIRED) {
     return res.status(403).json({
@@ -64,12 +78,23 @@ export const mustProvideRefreshToken = (
     });
   }
 
-  if (error && error.message === JWTValidationErrors.INVALID) {
+  if (
+    (error && error.message === JWTValidationErrors.INVALID) ||
+    !claims ||
+    !claims.id ||
+    !claims.username
+  ) {
     return res.status(401).json({
       error: true,
       message: "Refresh token is invalid",
     });
   }
+
+  // Add the user id to the request object
+  req.user = {
+    id: claims.id,
+    username: claims.username,
+  };
 
   // Continue
   next();
