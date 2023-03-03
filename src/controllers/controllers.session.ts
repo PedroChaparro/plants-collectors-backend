@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { comparePassword } from "../lib/bcrypt.lib.js";
 import { generateAccessToken, generateRefreshToken } from "../lib/jwt.lib.js";
 import { GetUserByUsername } from "../models/models.user.js";
+import { IRequestWithUser } from "../schemas/interfaces.js";
 import { loginRequestSchema } from "../schemas/request.schemas.js";
 
 // Handle the POST request to /api/v1/session/login
@@ -76,4 +77,52 @@ export const HandleValidateGet = async (
     error: false,
     message: "Token is valid",
   });
+};
+
+// Handle the GET request to /api/v1/session/refresh (Refresh access token)
+export const HandleRefreshGet = async (
+  req: IRequestWithUser,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    // Check the user id is present
+    if (!req.user) {
+      return res.status(401).json({
+        error: true,
+        message: "User is not authenticated",
+      });
+    }
+
+    // Get the user data from the username
+    const user = await GetUserByUsername(req.user.username, true);
+
+    if (!user || !user?.id) {
+      return res.status(404).json({
+        error: true,
+        message: "Unable to find a valid user with the given username",
+      });
+    }
+
+    // Create a new access token
+    const [atCreated, accessToken] = generateAccessToken({
+      id: user.id,
+      username: user.username,
+    });
+
+    if (!atCreated) {
+      return res.status(500).json({
+        error: true,
+        message: "Could not refresh session. Please try again later",
+      });
+    }
+
+    res.json({
+      error: false,
+      message: "New access token generated",
+      accessToken,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
