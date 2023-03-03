@@ -5,7 +5,7 @@
   "description": "Mobile development course first exam. ",
   "main": "index.js",
   "scripts": {
-    "setup:database": "npm run build && node dist/index.database.js",
+    "setup:database": "npm run build && node dist/database/index.database.js",
     "build": "npx tsc",
     "build:watch": "npx tsc -w",
     "dev": "concurrently \"npm run build:watch\" \"nodemon dist/index.js\"",

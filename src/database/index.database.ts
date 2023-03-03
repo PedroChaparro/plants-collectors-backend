@@ -1,9 +1,9 @@
 import { faker } from "@faker-js/faker";
-import { DatabasePool } from "./database/database.js";
-import { hashPassword } from "./lib/bcrypt.lib.js";
+import { DatabasePool } from "./database.js";
+import { hashPassword } from "../lib/bcrypt.lib.js";
 import path from "path";
 import sharp from "sharp";
-import plants from "./database/plants.json" assert { type: "json" };
+import plants from "./plants.json" assert { type: "json" };
 
 // Global variables
 const IMAGES_PATH = path.join(process.cwd(), "src", "public", "imgs");
@@ -81,7 +81,8 @@ const normalizePlantsImages = async () => {
   console.log("Images normalized!");
 };
 
-// Insert the plants
+// Insert the plants and assign a random user as the seller
+// Also create some random "reviews" for each plant
 const insertPlants = async () => {
   console.log("Inserting plants...");
 
@@ -89,10 +90,28 @@ const insertPlants = async () => {
     // Insert the plants at once
     await Promise.all(
       plants.map(async (plant) => {
+        // 1. Insert the plant
         const randomUserIndex = Math.floor(Math.random() * usersIds.length);
         const sellerId = usersIds[randomUserIndex];
-        const query = "INSERT INTO plants (name, seller_id) VALUES ($1, $2)";
-        DatabasePool.query(query, [plant, sellerId]);
+
+        const insertQuery =
+          "INSERT INTO plants (name, seller_id) VALUES ($1, $2) returning id";
+
+        const response = await DatabasePool.query(insertQuery, [
+          plant,
+          sellerId,
+        ]);
+        const plantId = response.rows[0].id; // Get the id of the inserted plant
+
+        // 2. Insert some random reviews
+        const reviewQuery =
+          "INSERT INTO RATINGS (plant_id, user_id, rating) VALUES ($1, $2, $3)";
+
+        // Random score between 3 and 5
+        usersIds.forEach(async (userId) => {
+          const randomScore = Math.floor(Math.random() * 3) + 3;
+          DatabasePool.query(reviewQuery, [plantId, userId, randomScore]);
+        });
       })
     );
   } catch (error) {
