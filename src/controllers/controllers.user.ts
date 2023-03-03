@@ -1,13 +1,18 @@
 import { NextFunction, Request, Response } from "express";
 import { hashPassword } from "../lib/bcrypt.lib.js";
+import { GetProductById } from "../models/models.products.js";
 import {
+  AddFavorite,
   GetFavorites,
   GetUserByUsername,
   GetUsernameByEmail,
   SaveUser,
 } from "../models/models.user.js";
 import { IRequestWithUser, KnownErrors } from "../schemas/interfaces.js";
-import { signupRequestSchema } from "../schemas/request.schemas.js";
+import {
+  favoriteRequestSchema,
+  signupRequestSchema,
+} from "../schemas/request.schemas.js";
 
 // Handle the POST request to /api/v1/user/signup (Create a new user)
 export const HandleSignupPost = async (
@@ -83,18 +88,47 @@ export const HandleFavoritesGet = async (
   }
 };
 
-/* export const HandleFavoritesPost = async (
+// Handle the POST request to /api/v1/user/favorites (Add a plant to the user's favorites)
+export const HandleFavoritesPost = async (
   req: IRequestWithUser,
   res: Response,
   next: NextFunction
 ) => {
   try {
+    if (!req.user || !req.user.id || !req.user.username)
+      throw new Error(KnownErrors.REQ_NO_USER);
+
+    // Validate the request body with zod
+    favoriteRequestSchema.parse(req.body);
+
+    // Check the plant exists
+    const plant = await GetProductById(req.body.plant_id);
+
+    if (!plant) {
+      return res.status(404).json({
+        error: true,
+        message: "Plant not found",
+      });
+    }
+
+    // Check the plant is not already in the user's favorites
+    const userFavorites = await GetFavorites(req.user.id);
+
+    if (userFavorites.includes(req.body.plant_id)) {
+      return res.status(409).json({
+        error: true,
+        message: "Plant is already in favorites",
+      });
+    }
+
+    // Add the plant to the user's favorites
+    await AddFavorite(req.body.plant_id, req.user.id);
+
     res.json({
       error: false,
-      message: "Favorites route",
+      message: "Plant added to favorites successfully",
     });
   } catch (error) {
     next(error);
   }
 };
- */
