@@ -2,6 +2,7 @@ import express, { Express, NextFunction, Request, Response } from "express";
 import dotenv from "dotenv";
 import { routes } from "./routes/router.js";
 import { ZodError } from "zod";
+import path from "path";
 
 // Configure environment variables
 dotenv.config();
@@ -15,6 +16,10 @@ app.use(express.json());
 app.use("/api/v1/session", routes.session);
 app.use("/api/v1/user", routes.user);
 app.use("/api/v1/product", routes.products);
+
+// Serve static files
+const STATIC_IMAGES_PATH = path.join(process.cwd(), "src", "public", "imgs");
+app.use("/api/v1/static", express.static(STATIC_IMAGES_PATH));
 
 // Error handler
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
