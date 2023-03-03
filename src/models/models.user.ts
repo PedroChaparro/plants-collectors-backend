@@ -54,10 +54,36 @@ export const SaveUser = async (user: TUser): Promise<boolean> => {
  */
 export const GetFavorites = async (userId: number): Promise<number[]> => {
   try {
-    const query = "SELECT plant_id FROM favorites WHERE user_id = $1";
+    // Check all parameters are provided
+    if (!userId) return [];
+
+    const query = "SELECT plant_id FROM USER_HAS_FAVORITES WHERE user_id = $1";
     const response = await DatabasePool.query(query, [userId]);
-    return response.rows;
+    return response.rows.map((plant) => plant.plant_id);
   } catch (error) {
     return [];
+  }
+};
+
+/**
+ *
+ * @param plantId The id of the plant to add to the favorites
+ * @param userId The id of the user to add the plant to
+ * @returns A boolean indicating if the plant was added to the favorites or not
+ */
+export const AddFavorite = async (
+  plantId: number,
+  userId: number
+): Promise<boolean> => {
+  try {
+    // Check all parameters are provided
+    if (!plantId || !userId) return false;
+
+    const query =
+      "INSERT INTO USER_HAS_FAVORITES (plant_id, user_id) VALUES ($1, $2)";
+    await DatabasePool.query(query, [plantId, userId]);
+    return true;
+  } catch (error) {
+    return false;
   }
 };
