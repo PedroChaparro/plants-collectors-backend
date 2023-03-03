@@ -1,10 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import { hashPassword } from "../lib/bcrypt.lib.js";
 import {
+  GetFavorites,
   GetUserByUsername,
   GetUsernameByEmail,
   SaveUser,
 } from "../models/models.user.js";
+import { IRequestWithUser } from "../schemas/interfaces.js";
 import { signupRequestSchema } from "../schemas/request.schemas.js";
 
 // Handle the POST request to /api/v1/user/signup (Create a new user)
@@ -58,3 +60,46 @@ export const HandleSignupPost = async (
     next(error);
   }
 };
+
+// Handle the GET request to /api/v1/user/favorites (Get the user's favorites plants ids)
+export const HandleFavoritesGet = async (
+  req: IRequestWithUser,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    // Check the user id is present
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({
+        error: true,
+        message: "User is not authenticated",
+      });
+    }
+
+    const favorites = await GetFavorites(req.user.id);
+
+    res.json({
+      error: false,
+      message: "Favorites retrieved successfully",
+      favorites,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/* export const HandleFavoritesPost = async (
+  req: IRequestWithUser,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    res.json({
+      error: false,
+      message: "Favorites route",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+ */

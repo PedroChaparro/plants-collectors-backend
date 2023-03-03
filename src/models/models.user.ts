@@ -47,3 +47,17 @@ export const SaveUser = async (user: TUser): Promise<boolean> => {
     return false;
   }
 };
+
+/**
+ * @param userId The id of the user to get the favorites for
+ * @returns An array of ids of the favorite user's plants
+ */
+export const GetFavorites = async (userId: number): Promise<number[]> => {
+  try {
+    const query = "SELECT plant_id FROM favorites WHERE user_id = $1";
+    const response = await DatabasePool.query(query, [userId]);
+    return response.rows;
+  } catch (error) {
+    return [];
+  }
+};

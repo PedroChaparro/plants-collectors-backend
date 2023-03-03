@@ -87,7 +87,7 @@ export const HandleRefreshGet = async (
 ) => {
   try {
     // Check the user id is present
-    if (!req.user) {
+    if (!req.user || !req.user.id) {
       return res.status(401).json({
         error: true,
         message: "User is not authenticated",
