@@ -6,9 +6,25 @@ import { TPopulatedPlant } from "../schemas/interfaces.js";
  */
 export const GetProducts = async (): Promise<TPopulatedPlant[]> => {
   try {
-    const query = "SELECT * FROM PLANTS_WITH_POPULATED_USER";
+    const query = "SELECT * FROM POPULATED_PLANTS";
     const response = await DatabasePool.query(query);
-    return response.rows as TPopulatedPlant[];
+
+    // Fix the average rate to 2 decimals and add the image endpoint
+    const plants = response.rows.map((plant) => {
+      const currentAverageRate = Number.parseFloat(plant.average_rate);
+      const fixedAverageRate = currentAverageRate.toFixed(2);
+
+      const imagePath =
+        plant.plant_name.toLowerCase().split(" ").join("_") + ".jpg";
+
+      return {
+        ...plant,
+        image_endpoint: `/static/${imagePath}`,
+        average_rate: Number.parseFloat(fixedAverageRate),
+      };
+    });
+
+    return plants as TPopulatedPlant[];
   } catch (error) {
     return [];
   }

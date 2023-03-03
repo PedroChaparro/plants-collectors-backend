@@ -8,6 +8,8 @@ export type TUser = {
 export type TPopulatedPlant = {
   plant_id: number;
   plant_name: string;
+  average_rate: number;
+  image_endpoint: string;
   owner_username: string;
 };
 
