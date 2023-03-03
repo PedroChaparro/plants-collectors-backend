@@ -6,6 +6,7 @@ import {
   GetFavorites,
   GetUserByUsername,
   GetUsernameByEmail,
+  RemoveFavorite,
   SaveUser,
 } from "../models/models.user.js";
 import { IRequestWithUser, KnownErrors } from "../schemas/interfaces.js";
@@ -111,7 +112,7 @@ export const HandleFavoritesPost = async (
     if (!plant) {
       return res.status(404).json({
         error: true,
-        message: "Plant not found",
+        message: "Plant was not found",
       });
     }
 
@@ -131,6 +132,57 @@ export const HandleFavoritesPost = async (
     res.json({
       error: false,
       message: "Plant added to favorites successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const HandleFavoritesDelete = async (
+  req: IRequestWithUser,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    if (!req.user || !req.user.id || !req.user.username)
+      throw new Error(KnownErrors.REQ_NO_USER);
+
+    // Validate the url parameter
+    let { plant_id } = req.params;
+
+    if (!plant_id) {
+      return res.status(400).json({
+        error: true,
+        message: "Plant id is required as a url parameter",
+      });
+    }
+
+    // Check if the plant exists
+    const plant = await GetProductById(Number(plant_id));
+
+    if (!plant) {
+      return res.status(404).json({
+        error: true,
+        message: "Plant was not found",
+      });
+    }
+
+    // Check if the plant is in the user's favorites
+    const userFavorites = await GetFavorites(req.user.id);
+
+    if (!userFavorites.includes(Number(plant_id))) {
+      return res.status(409).json({
+        error: true,
+        message: "Plant is not in favorites",
+      });
+    }
+
+    // Remove the plant from the user's favorites
+    await RemoveFavorite(Number(plant_id), req.user.id);
+
+    res.json({
+      error: false,
+      message: "Plant removed from favorites successfully",
     });
   } catch (error) {
     next(error);

@@ -87,3 +87,23 @@ export const AddFavorite = async (
     return false;
   }
 };
+
+/**
+ *
+ * @param plantId the id of the plant to remove from the favorites
+ * @param userId the id of the user to remove the plant from
+ * @returns A boolean indicating if the plant was removed from the favorites or not
+ */
+export const RemoveFavorite = async (
+  plantId: number,
+  userId: number
+): Promise<boolean> => {
+  try {
+    const query =
+      "DELETE FROM USER_HAS_FAVORITES WHERE plant_id = $1 AND user_id = $2";
+    await DatabasePool.query(query, [plantId, userId]);
+    return true;
+  } catch {
+    return false;
+  }
+};
