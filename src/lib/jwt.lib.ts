@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
-import { JWTValidationErrors } from "../schemas/interfaces.js";
+import { KnownErrors } from "../schemas/interfaces.js";
 dotenv.config();
 
 // Some global configs and interfaces
@@ -88,10 +88,10 @@ export const verifyAccessToken = (
     return [null, claims as IJWTPayload];
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
-      return [new Error(JWTValidationErrors.EXPIRED), null];
+      return [new Error(KnownErrors.JWT_EXPIRED), null];
     }
 
-    return [new Error(JWTValidationErrors.INVALID), null];
+    return [new Error(KnownErrors.JWT_INVALID), null];
   }
 };
 
@@ -112,9 +112,9 @@ export const verifyRefreshToken = (
     return [null, claims as IJWTPayload];
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
-      return [new Error(JWTValidationErrors.EXPIRED), null];
+      return [new Error(KnownErrors.JWT_EXPIRED), null];
     }
 
-    return [new Error(JWTValidationErrors.INVALID), null];
+    return [new Error(KnownErrors.JWT_INVALID), null];
   }
 };

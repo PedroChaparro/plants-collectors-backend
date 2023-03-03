@@ -15,9 +15,10 @@ export type TPopulatedPlant = {
   owner_username: string;
 };
 
-export enum JWTValidationErrors {
-  EXPIRED = "The token has expired",
-  INVALID = "The token is invalid",
+export enum KnownErrors {
+  JWT_EXPIRED = "The token has expired",
+  JWT_INVALID = "The token is invalid",
+  REQ_NO_USER = "The request object does not have a user property",
 }
 
 type TRequestUser = {

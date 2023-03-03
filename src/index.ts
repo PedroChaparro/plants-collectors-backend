@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import { routes } from "./routes/router.js";
 import { ZodError } from "zod";
 import path from "path";
+import { KnownErrors } from "./schemas/interfaces.js";
 
 // Configure environment variables
 dotenv.config();
@@ -33,6 +34,13 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
           message: issue.message,
         })),
       ],
+    });
+  }
+
+  if (err.message === KnownErrors.REQ_NO_USER) {
+    return res.status(401).json({
+      error: true,
+      message: "User is not authenticated",
     });
   }
 

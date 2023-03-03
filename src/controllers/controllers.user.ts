@@ -6,7 +6,7 @@ import {
   GetUsernameByEmail,
   SaveUser,
 } from "../models/models.user.js";
-import { IRequestWithUser } from "../schemas/interfaces.js";
+import { IRequestWithUser, KnownErrors } from "../schemas/interfaces.js";
 import { signupRequestSchema } from "../schemas/request.schemas.js";
 
 // Handle the POST request to /api/v1/user/signup (Create a new user)
@@ -68,13 +68,8 @@ export const HandleFavoritesGet = async (
   next: NextFunction
 ) => {
   try {
-    // Check the user id is present
-    if (!req.user || !req.user.id) {
-      return res.status(401).json({
-        error: true,
-        message: "User is not authenticated",
-      });
-    }
+    if (!req.user || !req.user.id || !req.user.username)
+      throw new Error(KnownErrors.REQ_NO_USER);
 
     const favorites = await GetFavorites(req.user.id);
 
