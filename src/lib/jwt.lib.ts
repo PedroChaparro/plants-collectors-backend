@@ -1,4 +1,6 @@
-import { sign } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config();
 
 // Some global configs and interfaces
 const CONFIG = {
@@ -27,7 +29,7 @@ export const generateAccessToken = (
       throw new Error("ACCESS_TOKEN_SECRET not defined");
     }
 
-    const token = sign(payload, CONFIG.ACCESS_TOKEN_SECRET, {
+    const token = jwt.sign(payload, CONFIG.ACCESS_TOKEN_SECRET, {
       expiresIn: "15 minutes",
       issuer: "plants_collectors_api",
       subject: payload.id.toString(),
@@ -49,8 +51,8 @@ export const generateRefreshToken = (
       throw new Error("REFRESH_TOKEN_SECRET not defined");
     }
 
-    const token = sign(payload, CONFIG.REFRESH_TOKEN_SECRET, {
-      expiresIn: "6 months",
+    const token = jwt.sign(payload, CONFIG.REFRESH_TOKEN_SECRET, {
+      expiresIn: "7 days",
       issuer: "plants_collectors_api",
       subject: payload.id.toString(),
       notBefore: "1",
