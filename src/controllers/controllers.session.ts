@@ -17,10 +17,10 @@ export const HandleLoginPost = async (
     // Check if the user exists
     const user = await GetUserByUsername(username, true);
 
-    if (!user) {
+    if (!user || !user?.id) {
       return res.status(404).json({
         error: true,
-        message: "Username does not exist",
+        message: "Unable to find a valid user with the given username",
       });
     }
 
