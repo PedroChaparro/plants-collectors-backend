@@ -65,3 +65,15 @@ export const HandleLoginPost = async (
     next(error);
   }
 };
+
+// Handle the GET request to /api/v1/session/validate (Check tokens)
+export const HandleValidateGet = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  res.json({
+    error: false,
+    message: "Token is valid",
+  });
+};

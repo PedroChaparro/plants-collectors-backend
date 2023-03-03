@@ -4,3 +4,8 @@ export type TUser = {
   id?: number;
   password?: string;
 };
+
+export enum JWTValidationErrors {
+  EXPIRED = "The token has expired",
+  INVALID = "The token is invalid",
+}
