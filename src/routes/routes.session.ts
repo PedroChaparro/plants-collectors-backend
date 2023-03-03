@@ -1,7 +1,5 @@
 import { Router, Request, Response } from "express";
-export const SessionRouter = Router();
+import { HandleLoginPost } from "../controllers/controllers.session.js";
 
-// Session routes
-SessionRouter.get("/hi", (req: Request, res: Response) => {
-  res.json({ message: "Hello World" });
-});
+export const SessionRouter = Router();
+SessionRouter.post("/login", HandleLoginPost);

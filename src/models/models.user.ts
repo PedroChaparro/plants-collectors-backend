@@ -3,24 +3,32 @@ import { DatabasePool } from "../database/database.js";
 import { TUser } from "../schemas/interfaces.js";
 
 export const GetUserByUsername = async (
-  username: string
-): Promise<QueryResult<any> | null> => {
+  username: string,
+  includeSensitiveData = false
+): Promise<TUser | null> => {
   try {
-    const query = "SELECT id, username, email FROM users WHERE username = $1";
+    const query = includeSensitiveData
+      ? "SELECT id, username, email, password FROM users WHERE username = $1"
+      : "SELECT id, username, email FROM users WHERE username = $1";
+
     const response = await DatabasePool.query(query, [username]);
-    return response.rows[0];
+    return response.rows[0] as TUser;
   } catch (error) {
     return null;
   }
 };
 
 export const GetUsernameByEmail = async (
-  email: string
-): Promise<QueryResult<any> | null> => {
+  email: string,
+  includeSensitiveData = false
+): Promise<TUser | null> => {
   try {
-    const query = "SELECT id, username, email FROM users WHERE email = $1";
+    const query = includeSensitiveData
+      ? "SELECT id, username, email, password FROM users WHERE email = $1"
+      : "SELECT id, username, email FROM users WHERE email = $1";
+
     const response = await DatabasePool.query(query, [email]);
-    return response.rows[0];
+    return response.rows[0] as TUser;
   } catch (error) {
     return null;
   }
