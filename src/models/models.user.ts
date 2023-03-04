@@ -1,5 +1,5 @@
 import { DatabasePool } from "../database/database.js";
-import { TUser } from "../schemas/interfaces.js";
+import { TPopulatedPlant, TUser } from "../schemas/interfaces.js";
 
 export const GetUserByUsername = async (
   username: string,
@@ -52,14 +52,39 @@ export const SaveUser = async (user: TUser): Promise<boolean> => {
  * @param userId The id of the user to get the favorites for
  * @returns An array of ids of the favorite user's plants
  */
-export const GetFavorites = async (userId: number): Promise<number[]> => {
+export const GetFavorites = async (
+  userId: number
+): Promise<TPopulatedPlant[]> => {
   try {
     // Check all parameters are provided
     if (!userId) return [];
 
-    const query = "SELECT plant_id FROM USER_HAS_FAVORITES WHERE user_id = $1";
-    const response = await DatabasePool.query(query, [userId]);
-    return response.rows.map((plant) => plant.plant_id);
+    const favoritesIdsQuery =
+      "SELECT plant_id FROM USER_HAS_FAVORITES WHERE user_id = $1";
+    const response = await DatabasePool.query(favoritesIdsQuery, [userId]);
+    const ids = response.rows.map((plant) => plant.plant_id);
+
+    // Get the plants from their ids
+    const plantsQuery =
+      "SELECT * FROM populated_plants WHERE plant_id = ANY($1)";
+    const plantsResponse = await DatabasePool.query(plantsQuery, [ids]);
+
+    // Fix the average rate to 2 decimals and add the image endpoint
+    const plants = plantsResponse.rows.map((plant) => {
+      const currentAverageRate = Number.parseFloat(plant.average_rate);
+      const fixedAverageRate = currentAverageRate.toFixed(2);
+
+      const imagePath =
+        plant.plant_name.toLowerCase().split(" ").join("_") + ".jpg";
+
+      return {
+        ...plant,
+        image_endpoint: `/static/${imagePath}`,
+        average_rate: Number.parseFloat(fixedAverageRate),
+      };
+    });
+
+    return plants as TPopulatedPlant[];
   } catch (error) {
     return [];
   }

@@ -119,7 +119,9 @@ export const HandleFavoritesPost = async (
     // Check the plant is not already in the user's favorites
     const userFavorites = await GetFavorites(req.user.id);
 
-    if (userFavorites.includes(Number(plant_id))) {
+    if (
+      userFavorites.some((favorite) => favorite.plant_id === Number(plant_id))
+    ) {
       return res.status(409).json({
         error: true,
         message: "Plant is already in favorites",
@@ -170,7 +172,9 @@ export const HandleFavoritesDelete = async (
     // Check if the plant is in the user's favorites
     const userFavorites = await GetFavorites(req.user.id);
 
-    if (!userFavorites.includes(Number(plant_id))) {
+    if (
+      !userFavorites.some((favorite) => favorite.plant_id === Number(plant_id))
+    ) {
       return res.status(409).json({
         error: true,
         message: "Plant is not in favorites",
