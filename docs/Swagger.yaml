@@ -198,6 +198,123 @@ paths:
                     items:
                       $ref: "#/components/schemas/Product"
 
+  # --- --- ---
+  # Session routes
+  /session/login:
+    post:
+      tags:
+        - Session
+      description: Login to get the access and refresh tokens.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: pedrochaparro
+                password:
+                  type: string
+                  example: pedro234
+        required: true
+      responses:
+        "200":
+          description: Login was successfull.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Login successful
+                  accessToken:
+                    type: string
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTEsInVzZXJuYW1lIjoicGVkcm9jaGFwYXJybyIsImlhdCI6MTY3ODAzNTExMSwibmJmIjoxNjc4MDM1MTExLCJleHAiOjE2NzgwMzYwMTEsImlzcyI6InBsYW50c19jb2xsZWN0b3JzX2FwaSIsInN1YiI6IjExIn0.X0DkhexnzhXug7529mWAWUabKDk7_--ECen4EkrTYDo"
+                  refreshToken:
+                    type: string
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTEsInVzZXJuYW1lIjoicGVkcm9jaGFwYXJybyIsImlhdCI6MTY3ODAzNTExMSwibmJmIjoxNjc4MDM1MTExLCJleHAiOjE2Nzg2Mzk5MTEsImlzcyI6InBsYW50c19jb2xsZWN0b3JzX2FwaSIsInN1YiI6IjExIn0.NwFsK1NJAkM1Cyb_3tNnhKm_c0prcxeZN2HDWZPTEX4"
+        "401":
+          description: The password is incorrect.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FailResponse"
+        "404":
+          description: There is user with the given username.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FailResponse"
+
+  /session/validate:
+    get:
+      tags:
+        - Session
+      description: Validate if the access token is still valid and not expired.
+      security:
+        - BearerAuth: [Access Token]
+      responses:
+        "200":
+          description: The access token is valid.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "401":
+          description: The access token was not provided or is not valid.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokesIsNotValid"
+        "403":
+          description: The access token has expired
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenHasExpiredResponse"
+
+  /session/refresh:
+    get:
+      tags:
+        - Session
+      description: Obtain a new access token from a valid refresh token.
+      security:
+        - BearerAuth: [Refresh Token]
+      responses:
+        "200":
+          description: Login was successfull.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: New access token generated
+                  accessToken:
+                    type: string
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTEsInVzZXJuYW1lIjoicGVkcm9jaGFwYXJybyIsImlhdCI6MTY3ODAzNTExMSwibmJmIjoxNjc4MDM1MTExLCJleHAiOjE2NzgwMzYwMTEsImlzcyI6InBsYW50c19jb2xsZWN0b3JzX2FwaSIsInN1YiI6IjExIn0.X0DkhexnzhXug7529mWAWUabKDk7_--ECen4EkrTYDo"
+        "401":
+          description: The refresh token was not provided or is not valid.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokesIsNotValid"
+        "403":
+          description: The refresh token has expired
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenHasExpiredResponse"
+
 # --- --- ---
 # Reusable components
 components:
