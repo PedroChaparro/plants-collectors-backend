@@ -2,6 +2,50 @@
 
 Movile development course first exam project.
 
+## Setup
+
+Follow the instructions below to setup the project.
+
+1. Start docker-compose
+
+```bash
+docker-compose up
+```
+
+2. Create database tables and views: For this, go to `http://localhost:5050` an login with the following credentials:
+
+- Email: `admin@admin.com`
+- Password: `admin`
+
+Then, connect to the plants_collector database with the following credentials:
+
+- Host: `postgres`
+- Port: `5432`
+- User: `postgres`
+- Password: `postgres`
+
+Finally, open the SQL editor and run the `tables.sql` and `views.sql` files (You can find them in the `database` folder).
+
+3. Crete a `.env` file from the `.env.example` file.
+
+4. Run the database setup script.
+
+```bash
+pnpm setup:database
+```
+
+5. Install the dependencies.
+
+```bash
+pnpm i
+```
+
+6. Run the project.
+
+```bash
+pnpm dev
+```
+
 ## 📜 Licence
 
 This project is licensed under the AGPL-3.0 License - see the [LICENSE](LICENSE) file for details.
