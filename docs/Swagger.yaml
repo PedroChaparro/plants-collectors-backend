@@ -1,0 +1,248 @@
+openapi: 3.0.0
+
+info:
+  version: "1.0.0"
+  title: Plants Collectors API
+  description: REST API to manage the users, products, favorites and ratings of the "Plants collectors" app.
+  
+paths:
+  # --- --- ---
+  # User routes
+  /user/signup:
+    post: 
+      tags:
+        - User
+      description: Creates a new user. 
+      requestBody: 
+        content: 
+          application/json:
+            schema: 
+              type: object
+              properties:
+                username: 
+                  type: string
+                  example: "pedrochaparro"
+                email:
+                  type: string
+                  example: "pchaparro@gmail.com"
+                password: 
+                  type: string
+                  example: "pedro1234"
+        required: true
+      responses:
+        '201': 
+          description: All the fields were OK and the user was successfully created 
+          content: 
+            application/json: 
+              schema: 
+                $ref: '#/components/schemas/SuccessResponse'
+        '409':
+          description: There is already another user using the given username / email.
+          content: 
+            application/json: 
+              schema: 
+                $ref: '#/components/schemas/FailResponse'
+  
+  /user/favorites:
+    post: 
+      tags:
+        - User
+      description: Get the user's favorites. 
+      security: 
+       - BearerAuth: [Access Token]
+      responses:
+        '200': 
+          description: The user's favorites were retrieved successfully.
+          content: 
+            application/json: 
+              schema: 
+                type: object
+                properties: 
+                  error:
+                    type: boolean
+                    example: false
+                  message: 
+                    type: string
+                    example: Favorites retrieved successfully
+                  favorites:
+                    type: array
+                    items: 
+                        $ref: '#/components/schemas/Product'
+        '401': 
+          description: The access token was not provided or is not valid.
+          content: 
+            application/json: 
+              schema: 
+                $ref: '#/components/schemas/TokesIsNotValid'
+        '403': 
+          description: The access token has expired
+          content: 
+            application/json: 
+              schema: 
+                $ref: '#/components/schemas/TokenHasExpiredResponse'             
+
+  /user/favorites/{product_id}:
+    delete: 
+      tags: 
+        - User
+      description: Remove one product from the user's favorites
+      security: 
+        - BearerAuth: [Access Token]
+      parameters:
+        - in: path
+          name: product_id
+          schema: 
+            type: number
+            example: 1
+          required: true
+      responses:
+        '200':
+          description: The plant was removed from the user's favorites
+          content: 
+            application/json: 
+              schema: 
+                $ref: '#/components/schemas/SuccessResponse'
+        '401': 
+          description: The access token was not provided or is not valid.
+          content: 
+            application/json: 
+              schema: 
+                $ref: '#/components/schemas/TokesIsNotValid'
+        '403': 
+          description: The access token has expired
+          content: 
+            application/json: 
+              schema: 
+                $ref: '#/components/schemas/TokenHasExpiredResponse'
+        '404': 
+          description: There is no plant with the given id.
+          content: 
+            application/json: 
+              schema: 
+                $ref: '#/components/schemas/FailResponse'   
+        '409': 
+          description: The plant doesn't exist on the user's favorites.
+          content: 
+            application/json: 
+              schema: 
+                $ref: '#/components/schemas/FailResponse'  
+    
+    post: 
+      tags:
+        - User
+      description: Add one product to the user's favorites.
+      security: 
+        - BearerAuth: [Access Token]
+      parameters:
+        - in: path
+          name: product_id
+          schema: 
+            type: number
+            example: 1
+          required: true
+      responses:
+        '200':
+          description: The plant was successfully added to the user's favorites.
+          content: 
+            application/json: 
+              schema: 
+                $ref: '#/components/schemas/SuccessResponse'
+        '401': 
+          description: The access token was not provided or is not valid.
+          content: 
+            application/json: 
+              schema: 
+                $ref: '#/components/schemas/TokesIsNotValid'
+        '403': 
+          description: The access token has expired
+          content: 
+            application/json: 
+              schema: 
+                $ref: '#/components/schemas/TokenHasExpiredResponse'
+        '404': 
+          description: There is no plant with the given id.
+          content: 
+            application/json: 
+              schema: 
+                $ref: '#/components/schemas/FailResponse'   
+        '409': 
+          description: The plant doesn't exist on the user's favorites.
+          content: 
+            application/json: 
+              schema: 
+                $ref: '#/components/schemas/FailResponse'  
+                
+# --- --- --- 
+# Reusable components
+components: 
+  # --- --- ---
+  # Authorization schemas
+  securitySchemes: 
+    BearerAuth: 
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  # --- --- ---
+  # Responses schemas
+  schemas: 
+    SuccessResponse: 
+      type: object
+      properties: 
+        error: 
+          type: boolean
+          example: false
+        message: 
+          type: string
+          example: "Request was successfully completed"
+    FailResponse: 
+      type: object
+      properties: 
+        error: 
+          type: boolean
+          example: true
+        message: 
+          type: string
+          example: "Request wasn't successfully completed. Please, try again later."
+    TokenHasExpiredResponse:
+      type: object
+      properties:
+        error: 
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "[Access/Refresh] token has expired"
+    TokesIsNotValid:
+      type: object
+      properties:
+        error: 
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "[Access/Refresh] token is invalid"
+  # --- --- ---
+  # Models
+    Product: 
+      type: object
+      properties:
+        plant_id: 
+          type: number
+          example: 1
+        plant_name: 
+          type: string
+          example: Red Dahlia
+        average_rate: 
+          type: number
+          example: 4.6
+        owner_username:
+          type: string
+          example: Mossie_Zemlak
+        image_endpoint: 
+          type: string
+          example: /static/red_dahlia.jpg
+  
+servers:
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/PedroChaparro/Plants_collectors/1.0.0
